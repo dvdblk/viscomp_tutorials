@@ -1,4 +1,4 @@
-// tut6 for visual computing 2018
+// tut7 for visual computing 2018
 // JMB (jamesmbern@gmail.com)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,36 @@ function set_(mat, r, c, val) {
 // TODO: You can answer Part 1 + 2 of the assignment here.
 function getTriangleModelMatrix() { 
     var M_triangle = mat4.create();
-    // set_(M_triangle, 1, 1, globalTime);
-    // set_(M_triangle, 0, 3, Math.cos(globalTime));
-    // set_(M_triangle, 0, 0,  Math.cos(globalTime)); set_(M_triangle, 0, 1, -Math.sin(globalTime)); set_(M_triangle, 1, 0,  Math.sin(globalTime)); set_(M_triangle, 1, 1,  Math.cos(globalTime));
+    /*//// 1. a) scaled by cos(globalTime) in x-axis
+    set_(M_triangle, 0, 0, Math.cos(globalTime));
+    //// 1. b) reflection along x-axis
+    set_(M_triangle, 0, 0, -1);
+    //// 1. c) The triangle is rotated by globalTime about the origin.
+    set_(M_triangle, 0, 0, Math.cos(globalTime));
+    set_(M_triangle, 1, 0, Math.sin(globalTime));
+    set_(M_triangle, 0, 1, -Math.sin(globalTime));
+    set_(M_triangle, 1, 1, Math.cos(globalTime));*/
+    //// 1. d) The triangle is rotated by globalTime about the point (1, 1).*/
+    /*var translation = mat4.create();
+    set_(translation, 0, 3, 1);
+    set_(translation, 1, 3, -1);
+    var rotation = mat4.create();
+    set_(rotation, 0, 0, Math.cos(globalTime*2));
+    set_(rotation, 1, 0, Math.sin(globalTime*2));
+    set_(rotation, 0, 1, -Math.sin(globalTime*2));
+    set_(rotation, 1, 1, Math.cos(globalTime*2));
+    var translation_back = mat4.create();
+    set_(translation_back, 0, 3, -1);
+    set_(translation_back, 1, 3, 1);
+    var composition = mat4.create();
+    mat4.multiply(composition, rotation, translation);
+    mat4.multiply(M_triangle, translation_back, composition);*/
+
+    //// 2.
+    M_triangle = getCameraMatrix(2);
+    mat4.rotateY(M_triangle, M_triangle, globalTime*0.5);
+    mat4.translate(M_triangle, M_triangle, [-.3, .3, 0.]);
+    mat4.scale(M_triangle, M_triangle, [.5, .5, .5]);
     return M_triangle;
 }
 
