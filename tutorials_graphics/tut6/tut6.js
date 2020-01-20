@@ -75,7 +75,8 @@ function main() {
 
     function draw() { 
         getReadyToDraw();
-        drawTriangle();
+        //drawTriangle();
+        drawCircle();
     }; 
 
     function getReadyToDraw() { 
@@ -89,17 +90,20 @@ function main() {
         // {points} is an array of gLmatrix.vec2's
         let points = [];
         let p0 = vec2.fromValues(0., 0.);
-        let p1 = vec2.fromValues(Math.cos(globalTime), Math.sin(globalTime));
-        let p2 = vec2.fromValues(Math.cos(.33 * Math.PI + globalTime), Math.sin(.33 * Math.PI + globalTime));
+        // let p1 = vec2.fromValues(Math.cos(globalTime), Math.sin(globalTime));
+        // let p2 = vec2.fromValues(Math.cos(.33 * Math.PI + globalTime), Math.sin(.33 * Math.PI + globalTime));
+        let p1 = vec2.fromValues(Math.cos(0), Math.sin(0));
+        let p2 = vec2.fromValues(Math.cos(.33 * Math.PI), Math.sin(.33 * Math.PI));
         points.push(p0);
         points.push(p1);
         points.push(p2);
         
         // // {uForegroundColor} is a uniform vec3 specifying the triangle's color;
         let col = BLACK;
-        let CASE = 3;
+        let CASE = 0;
         if (CASE == 0) {
-            col = WHITE;
+            // col = WHITE;
+            col = RED;
         } else if (CASE == 1) {
             // .5 * (GREEN + RED)
             vec3.add(col, col, GREEN); // add col to GREEN and store the result in col; vec.add(out, a, b) <=> out = a + b;
@@ -134,6 +138,53 @@ function main() {
         // Actually draw the triangle
         gl.drawArrays(gl.TRIANGLES, 0, 3); 
     }; 
+
+    function drawCircle() {
+        // {circle_points} is an array of gLmatrix.vec2's
+        total_points = 360
+        let circle_points = [];
+        // create perimeter points
+        for (i = 0; i < total_points; i++) { 
+            angle = i*2.*Math.PI/total_points
+            p_x = Math.cos(angle)
+            p_y = Math.sin(angle)
+            let point = vec2.fromValues(p_x, p_y)
+            circle_points.push(point)
+        }
+
+        // create actual circle from triangles
+        let points = [];
+        for (i = 0; i < total_points - 1; i++) {
+            points.push(vec2.fromValues(0, 0))
+            points.push(circle_points[i])
+            points.push(circle_points[i+1])
+        }
+        // edge case: handle last triangle
+        points.push(vec2.fromValues(0, 0))
+        points.push(circle_points[total_points-1])
+        points.push(circle_points[0])
+
+        // Color
+        col = BLUE;
+
+        // -------- OpenGL Stuff
+        const uForegroundColor = gl.getUniformLocation(shaderProgram, 'uForegroundColor');
+        gl.uniform3f(uForegroundColor, col[0], col[1], col[2]);
+
+        // Populate vertex buffer
+        let vertexData = concatArrayOfFloat32Arrays(points);
+        const vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+
+        // Connect the shader to the vertex buffer (docs say it just uses the current buffer)
+        const aVertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aVertexPosition);
+
+        // Actually draw the triangle
+        gl.drawArrays(gl.TRIANGLES, 0, points.length); 
+    }
 
     function setupShaderProgram() { 
         var vertShader = gl.createShader(gl.VERTEX_SHADER);
